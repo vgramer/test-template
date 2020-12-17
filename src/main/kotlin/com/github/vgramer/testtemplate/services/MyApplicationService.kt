@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.vgramer.testtemplate.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.vgramer.testtemplate.MyBundle
 
 class MyApplicationService {
 
