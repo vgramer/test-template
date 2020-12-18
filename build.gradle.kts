@@ -16,6 +16,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.14.2"
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+
+    id("org.jetbrains.grammarkit") version "2020.2.1"
 }
 
 // Import variables from gradle.properties file
@@ -42,7 +44,8 @@ repositories {
     jcenter()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.2")
+//    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.2")
+    testImplementation("org.assertj:assertj-core:3.16.1")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -71,6 +74,21 @@ detekt {
     }
 }
 
+val generateRegoLexer = task<org.jetbrains.grammarkit.tasks.GenerateLexer>("generateRegoLexer") {
+    source = "src/main/grammar/RegoLexer.flex"
+    targetDir = "src/main/gen/org/openpolicyagent/ideaplugin/lang/lexer"
+    targetClass = "_RegoLexer"
+    purgeOldFiles = true
+}
+
+val generateRegoParser = task<org.jetbrains.grammarkit.tasks.GenerateParser>("generateRegoParser") {
+    source = "src/main/grammar/Rego.bnf"
+    targetRoot = "src/main/gen"
+    pathToParser = "/org/openpolicyagent/ideaplugin/lang/parser/RegoParser.java"
+    pathToPsiRoot = "/org/openpolicyagent/ideaplugin/lang/psi"
+    purgeOldFiles = true
+}
+
 tasks {
     // Set the compatibility versions to 1.8
     withType<JavaCompile> {
@@ -83,6 +101,13 @@ tasks {
 
     withType<Detekt> {
         jvmTarget = "1.8"
+    }
+
+    withType<KotlinCompile> {
+        dependsOn(
+            generateRegoLexer,
+            generateRegoParser
+        )
     }
 
     patchPluginXml {
@@ -124,5 +149,11 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://jetbrains.org/intellij/sdk/docs/tutorials/build_system/deployment.html#specifying-a-release-channel
         channels(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs("src/main/gen")
+        }
     }
 }

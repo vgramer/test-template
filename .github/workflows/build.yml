@@ -62,9 +62,17 @@ jobs:
           path: ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
+      - name: Download OPA
+        run: |
+          mkdir -p /tmp/opa_bin
+          curl -L -o /tmp/opa_bin/opa https://github.com/open-policy-agent/opa/releases/download/v0.20.5/opa_linux_amd64
+          chmod +x /tmp/opa_bin/opa
+
       # Run detekt, ktlint and tests
       - name: Run Linters and Test
-        run: ./gradlew check
+        run: |
+          export PATH=/tmp/opa_bin:$PATH
+          ./gradlew --info check
 
       # Run verifyPlugin Gradle task
       - name: Verify Plugin

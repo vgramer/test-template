@@ -6,14 +6,23 @@
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.vgramer.testtemplate.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.vgramer.testtemplate.services.MyProjectService"/>
+        <!-- File-type Factory -->
+        <fileType name="Rego file"
+                  implementationClass="org.openpolicyagent.ideaplugin.lang.RegoFileType"
+                  fieldName="INSTANCE"
+                  language="rego"
+                  extensions="rego"/>
+
+        <!-- Highlighting -->
+        <lang.parserDefinition language="rego"  implementationClass="org.openpolicyagent.ideaplugin.lang.parser.RegoParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="rego" implementationClass="org.openpolicyagent.ideaplugin.ide.highlight.RegoHighlighterFactory"/>
+
+        <!-- Typing -->
+        <lang.braceMatcher language="rego" implementationClass="org.openpolicyagent.ideaplugin.ide.typing.RegoBraceMatcher"/>
+
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.vgramer.testtemplate.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
 </idea-plugin>
